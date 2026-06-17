@@ -89,7 +89,7 @@ TYPE 'iceberg'
 PROPERTIES (
     'type' = 'rest',
     'uri' = 'https://biglake.googleapis.com/iceberg/v1/restcatalog',
-    'warehouse' = 'gs://global-sales',
+    'warehouse' = 'gs://sales-global',
     'header.x-goog-user-project' = 'apache-beam-testing',
     'rest.auth.type' = 'google',
     'io-impl' = 'org.apache.iceberg.gcp.gcs.GCSFileIO',
