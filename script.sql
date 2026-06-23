@@ -1,4 +1,4 @@
--- create america table
+-- Glue Catalog for sales in America
 CREATE CATALOG sales_america
 TYPE 'iceberg'
 PROPERTIES (
@@ -11,9 +11,9 @@ PROPERTIES (
 USE CATALOG sales_america;
 SHOW DATABASES;
 
-DROP DATABASE IF EXISTS sales_america.retail CASCADE;
-CREATE DATABASE sales_america.retail;
-USE DATABASE sales_america.retail;
+DROP DATABASE IF EXISTS retail CASCADE;
+CREATE DATABASE retail;
+USE DATABASE retail;
 
 CREATE EXTERNAL TABLE orders (
     customer_id BIGINT,
@@ -38,7 +38,7 @@ INSERT INTO orders VALUES
 SELECT * FROM orders ORDER BY customer_id ASC LIMIT 10;
 
 
--- create europe table
+-- Databricks Unity Catalog for sales in Europe
 CREATE CATALOG sales_europe
 TYPE 'iceberg'
 PROPERTIES (
@@ -55,9 +55,9 @@ PROPERTIES (
 USE CATALOG sales_europe;
 SHOW DATABASES;
 
-DROP DATABASE IF EXISTS sales_europe.retail CASCADE;
-CREATE DATABASE sales_europe.retail;
-USE DATABASE sales_europe.retail;
+DROP DATABASE IF EXISTS retail CASCADE;
+CREATE DATABASE retail;
+USE DATABASE retail;
 
 CREATE EXTERNAL TABLE orders (
     customer_id BIGINT,
@@ -83,7 +83,7 @@ SELECT * FROM orders ORDER BY customer_id ASC LIMIT 10;
 
 
 
--- create global sales table
+-- Google Lakehouse Catalog for global sales
 CREATE CATALOG global_sales
 TYPE 'iceberg'
 PROPERTIES (
@@ -95,17 +95,19 @@ PROPERTIES (
     'io-impl' = 'org.apache.iceberg.gcp.gcs.GCSFileIO',
     'header.X-Iceberg-Access-Delegation' = 'vended-credentials'
 );
+USE CATALOG global_sales;
 
-DROP DATABASE IF EXISTS global_sales.us_eu CASCADE;
-CREATE DATABASE global_sales.us_eu;
-USE DATABASE global_sales.us_eu;
+DROP DATABASE IF EXISTS us_eu CASCADE;
+CREATE DATABASE us_eu;
+USE DATABASE us_eu;
 
 CREATE EXTERNAL TABLE total_spend_per_customer (
     customer_id BIGINT,
     total_spend INT)
 TYPE 'iceberg';
 
--- query
+-- Query: sum total spend of customers in each region,
+-- then insert totals for shared customers into the global table
 INSERT INTO total_spend_per_customer (customer_id, total_spend)
 SELECT
   a.customer_id,
@@ -122,5 +124,5 @@ JOIN (
 ) AS e
   ON a.customer_id = e.customer_id;
 
-
+-- show results
 SELECT * FROM total_spend_per_customer ORDER BY customer_id ASC LIMIT 10;
